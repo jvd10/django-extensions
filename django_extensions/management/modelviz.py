@@ -26,6 +26,7 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import activate as activate_language
 
+import textwrap
 
 __version__ = "1.1"
 __license__ = "Python"
@@ -168,6 +169,7 @@ class ModelGraph:
             ),
             'relation': isinstance(field, RelatedField),
             'primary_key': field.primary_key,
+            'help_text': field.help_text if field.help_text else '',
         }
 
     def add_relation(self, field, model, extras="", color=None):
@@ -347,6 +349,9 @@ class ModelGraph:
                     # add inheritance arrows
                     for parent in appmodel.__bases__:
                         model = self.process_parent(parent, appmodel, model)
+
+                if appmodel.__doc__:
+                    model['doc'] = textwrap.wrap(" ".join(appmodel.__doc__.split()), 80)
 
                 app_graph['models'].append(model)
             if app_graph['models']:
